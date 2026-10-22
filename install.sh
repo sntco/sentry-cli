@@ -341,8 +341,13 @@ if [[ ! -e "$agent" ]]; then
     cp "$temporary/agent.plist" "$agent_stage"
     mv -f "$agent_stage" "$agent"
 fi
+if [[ ! -e "$state" && ! -L "$state" ]]; then
+    # D232: RunAtLoad needs valid initial state; the command link waits for registration.
+    ln -s "$generation" "$temporary/state"
+    mv -fh "$temporary/state" "$state"
+fi
 if ! job_loaded; then
-    launchctl bootstrap "gui/$UID" "$agent" || fail 'Automatic updater registration failed; CLI activation withheld.'
+    launchctl bootstrap "gui/$UID" "$agent" || fail 'Automatic updater registration failed; sentry command activation withheld.'
 fi
 ln -s "$generation" "$temporary/state"
 # One atomic pointer commits binary, signed metadata, updater and ownership together.
