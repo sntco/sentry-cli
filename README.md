@@ -12,7 +12,19 @@ curl -fsSL https://sntco.github.io/sentry-cli/install.sh | bash
 
 The installer selects the current signed preview, installs in `~/.local/share/sentry-cli`, links `~/.local/bin/sentry`, configures zsh/bash PATH and registers a user updater at login/daily. Open a new terminal once if the current terminal cannot find `sentry`; a child process cannot change its parent shell environment. It requires no administrator password. The app is a separate prerequisite.
 
-References use literal quoted names: `sentry run --stdin 'Deployment notes/note' -- /path/to/command`. Spaces and percent signs are literal. Use `\/` for a slash inside a name and `\\` for a backslash. Unlock Sentry and approve access normally.
+Use a saved token as an environment variable:
+
+```sh
+sentry run --env 'API_TOKEN=Hosting account/password' -- /absolute/path/to/command
+```
+
+Or send a secure note to a script through standard input:
+
+```sh
+sentry run --stdin 'Deployment notes/note' -- /absolute/path/to/custom-script
+```
+
+The script must read standard input. The CLI sends the saved UTF-8 bytes without adding a newline. Replace the fictional item titles and command paths with your own. References use literal quoted names; spaces and percent signs are literal. Use `\/` for a slash inside a name and `\\` for a backslash. Unlock Sentry and approve access normally.
 
 The updater verifies RSA/SHA256 publisher-signed channel metadata with its pinned key, checks expiry/revision/version and binds both installer and binary hashes. It verifies the ad-hoc code signature and architecture before activation. Immutable state generations switch binary, signed metadata and updater together; running commands retain their existing version. The initial curl command trusts this HTTPS site to deliver the installer and pinned public key. This is not Apple Developer ID signing or notarization.
 

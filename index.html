@@ -23,10 +23,16 @@
 <p>That installs the current preview, configures zsh/bash command discovery and enables automatic update checks at login and daily. No Swift, Xcode or administrator password is needed. If your current terminal cannot find <code>sentry</code>, open a new terminal once.</p>
 <p>Then run <code>sentry --help</code>. Installation does not install or unlock the Sentry app.</p>
 <h2>Use a saved field</h2>
-<pre><code>sentry run --env 'API_TOKEN=Hosting account/password' -- /absolute/path/to/command
-sentry access list
-sentry access revoke 'Hosting account'</code></pre>
+<p>Pass a saved token to a command as an environment variable:</p>
+<pre><code>sentry run --env 'API_TOKEN=Hosting account/password' -- /absolute/path/to/command</code></pre>
+<p>Or send a secure note to a script through standard input:</p>
+<pre><code>sentry run --stdin 'Deployment notes/note' -- /absolute/path/to/custom-script</code></pre>
+<p>The script must read standard input. Sentry sends the saved UTF-8 bytes without adding a newline. These example titles must match your saved items; replace the command paths with your own.</p>
 <p>Use the exact, unique saved item title, quoted in field references. Open and unlock Sentry, then run your command and choose Allow once, Allow always or Deny. Allow always covers the entire item for any local program while Sentry is unlocked. Commands can expose credentials they receive; check their behavior and output.</p>
+<h2>Manage remembered access</h2>
+<pre><code>sentry access list
+sentry access revoke 'Hosting account'</code></pre>
+<p>Run these while Sentry is open and unlocked. The list shows remembered permissions, not every saved item. Revoking an item makes its next request prompt again.</p>
 <h2>Automatic updates</h2>
 <p>The CLI checks for updates at login and daily while your Mac session is active. Verified updates switch atomically without stopping running commands. Offline or rejected downloads preserve the installed version and are retried on a later scheduled check. Keep the app on the matching current protocol.</p>
 <h2>Uninstall</h2>
