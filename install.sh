@@ -94,7 +94,10 @@ printf '%s  sentry\n' "$expected" > "$temporary/SHA256SUMS"
 codesign --verify --strict "$temporary/sentry" || fail 'Invalid executable signature.'
 signature=$(codesign -dv --verbose=4 "$temporary/sentry" 2>&1)
 [[ $'\n'"$signature"$'\n' == *$'\nSignature=adhoc\n'* && $'\n'"$signature"$'\n' == *$'\nIdentifier=co.sentry.sentry.cli.preview\n'* ]] || fail 'Wrong preview signing identity.'
-[[ $(lipo -archs "$temporary/sentry") == arm64 ]] || fail 'Wrong executable architecture.'
+# lipo is an Xcode tool shim on stock macOS. Inspect the thin arm64/all Mach-O
+# header with base-system tools so installation never requests developer tools.
+header=$(od -An -tx1 -N12 "$temporary/sentry" | tr -d '[:space:]')
+[[ "$header" == cffaedfe0c00000100000000 ]] || fail 'Wrong executable architecture.'
 chmod 755 "$temporary/sentry"
 release="$root/release-$version-$expected"
 if [[ -e "$release" || -L "$release" ]]; then
