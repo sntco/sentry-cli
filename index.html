@@ -16,34 +16,36 @@
 <main>
 <p>SENTRY · DEVELOPER PREVIEW</p>
 <h1>Vault credentials.<br>Your command line.</h1>
-<p>The separate <code>sentry</code> CLI lets local commands use selected vault fields after approval in Sentry.</p>
-<p class="notice"><strong>Development preview.</strong> Apple silicon and macOS 27 or later. Requires the matching Sentry development app; the production App Store connection is still being qualified. The CLI is ad-hoc signed and <strong>not notarized</strong>.</p>
+<p>Use saved credentials in local commands, with approval in Sentry.</p>
+<p class="notice">Apple silicon · macOS 27+ · matching Sentry development app required. Ad-hoc signed, not notarized; production App Store connection still being qualified.</p>
 <h2>Install</h2>
 <pre><code>curl -fsSL https://sntco.github.io/sentry-cli/install.sh | bash</code></pre>
-<p>That installs the current preview, configures zsh/bash command discovery and enables automatic update checks at login and daily. No Swift, Xcode or administrator password is needed. If your current terminal cannot find <code>sentry</code>, open a new terminal once.</p>
-<p>Then run <code>sentry --help</code>. Installation does not install or unlock the Sentry app.</p>
-<h2>Use a saved field</h2>
-<p>Pass a saved token to a command as an environment variable:</p>
-<pre><code>sentry run --env 'API_TOKEN=Hosting account/password' -- /absolute/path/to/command</code></pre>
-<p>Or send a secure note to a script through standard input:</p>
-<pre><code>sentry run --stdin 'Deployment notes/note' -- /absolute/path/to/custom-script</code></pre>
-<p>The script must read standard input. Sentry sends the saved UTF-8 bytes without adding a newline. These example titles must match your saved items; replace the command paths with your own.</p>
-<p>Use the exact, unique saved item title, quoted in field references. Open and unlock Sentry, then run your command and choose Allow once, Allow always or Deny. Allow always covers the entire item for any local program while Sentry is unlocked. Commands can expose credentials they receive; check their behavior and output.</p>
-<h2>Manage remembered access</h2>
+<p>Installs the CLI, sets up your shell and enables automatic updates at login and daily. Open a new terminal once if needed.</p>
+<h2>Use it</h2>
+<p>Open and unlock Sentry. Replace the example item titles with your own, then choose <strong>Allow once</strong> or <strong>Allow always</strong> when prompted.</p>
+<p><strong>Use a token</strong></p>
+<pre><code>sentry run --env 'API_TOKEN=Hosting account/password' -- /path/to/tool</code></pre>
+<p><strong>Run sudo with a saved password</strong></p>
+<pre><code>sentry run --stdin 'Mac admin/password' -- \
+  /usr/bin/sudo -S -k /usr/bin/id -u</code></pre>
+<p>Save your current macOS user's password in “Mac admin”. <code>-S</code> reads it from stdin; <code>-k</code> requests fresh authentication. This example prints <code>0</code> when authorized. Your user must have sudo permission.</p>
+<p><strong>Send a secure note to a script</strong></p>
+<pre><code>sentry run --stdin 'Deployment notes/note' -- /path/to/script</code></pre>
+<p>The script reads the saved text from stdin, without an added newline.</p>
+<h2>Manage access</h2>
 <pre><code>sentry access list
 sentry access revoke 'Hosting account'</code></pre>
-<p>Run these while Sentry is open and unlocked. The list shows remembered permissions, not every saved item. Revoking an item makes its next request prompt again.</p>
-<h2>Automatic updates</h2>
-<p>The CLI checks for updates at login and daily while your Mac session is active. Verified updates switch atomically without stopping running commands. Offline or rejected downloads preserve the installed version and are retried on a later scheduled check. Keep the app on the matching current protocol.</p>
+<p>Allow always covers the whole item for any local program while Sentry is unlocked. The list shows remembered permissions; revoke makes the next request prompt again.</p>
 <h2>Uninstall</h2>
 <pre><code>curl -fsSL https://sntco.github.io/sentry-cli/install.sh | bash -s -- --uninstall</code></pre>
-<p>Uninstall removes verified CLI versions, the scheduled updater and its managed PATH entries. It preserves the app, vault and unrelated shell settings. Changed or unknown files are preserved for inspection.</p>
-<details><summary>Advanced installation details</summary>
-<p><a href="https://github.com/sntco/sentry-cli/blob/main/install.sh">Inspect the installer</a> or <a href="https://github.com/sntco/sentry-cli/releases">inspect versioned downloads</a>. Only the current signed preview is installable. The command lives at <code>~/.local/bin/sentry</code>. A child installer cannot modify the terminal that launched it; automatic shell setup takes effect in a new terminal. Custom zsh configuration selected through <code>ZDOTDIR</code> is recorded at installation. An interrupted install may require inspection of its lock or incomplete files before retrying.</p>
+<details><summary>Installation and security details</summary>
+<p>The CLI is separate from the app. Installation needs no Swift, Xcode or administrator password. It configures zsh/bash command discovery at <code>~/.local/bin/sentry</code>; a running terminal may need reopening. <code>sentry --help</code> lists the options.</p>
+<p>References use exact, unique item titles and field paths. Commands receive the selected credential and can expose it through their output. Stdin is consumed by the receiving program; the sudo example is for a command that needs no additional stdin.</p>
+<p>Updates require publisher-signed metadata, matching hashes, architecture and ad-hoc code signature checks. Verified versions switch atomically; failed or offline checks preserve the installed version. The first curl command trusts HTTPS for its installer and pinned publisher key. This is separate from Apple Developer ID signing.</p>
+<p>Uninstall removes verified CLI versions, the updater and managed shell entries. It preserves the app, vault, unrelated settings and unknown or changed files. Interrupted setup may need inspection; power-loss durability is not qualified.</p>
+<p>If macOS blocks execution, stop and report it. The installer does not remove quarantine or disable Gatekeeper. Developer ID/notarization, production App Store communication and clean-Mac qualification remain pending. Keep the app and CLI on the matching current protocol.</p>
+<p><a href="https://github.com/sntco/sentry-cli#readme">Full CLI guide</a> · <a href="https://github.com/sntco/sentry-cli/blob/main/install.sh">Installer source</a></p>
 </details>
-<h2>What is verified?</h2>
-<p>Each release includes the executable, SHA-256 checksum and source/toolchain/protocol manifest. The installer checks the checksum, ad-hoc signature and architecture before installing. Updates also require release metadata signed by the publisher key pinned in the installer. The metadata binds the binary and installer hashes, revision and expiry, with downgrade and replay refusals. The first curl command trusts the HTTPS website to deliver that installer and its pinned key. This update signature is separate from Apple Developer ID signing.</p>
-<p>If macOS blocks execution, stop and report the result. The installer does not remove quarantine or disable Gatekeeper. Developer ID signing and notarization are planned before production launch. Keep the app and CLI on the same current protocol; older prototype formats are refused.</p>
-<p><a href="https://github.com/sntco/sentry-cli/issues">Report an installation issue</a> · <a href="https://github.com/sntco/sentry-cli/releases">Downloads and release manifests</a></p>
+<p><a href="https://github.com/sntco/sentry-cli/issues">Get help</a> · <a href="https://github.com/sntco/sentry-cli/releases">Downloads</a></p>
 </main>
 </html>
