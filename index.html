@@ -18,31 +18,25 @@
 <h1>Vault credentials.<br>Your command line.</h1>
 <p>The separate <code>sentry</code> CLI lets local commands use selected vault fields after approval in Sentry.</p>
 <p class="notice"><strong>Development preview.</strong> Apple silicon and macOS 27 or later. Requires the matching Sentry development app; the production App Store connection is still being qualified. The CLI is ad-hoc signed and <strong>not notarized</strong>.</p>
-<h2>Install a preview</h2>
-<p>Choose a version from <a href="https://github.com/sntco/sentry-cli/releases">preview releases</a>. No Swift, Xcode or administrator password is needed to install the CLI. Replace <code>VERSION</code> below with the release number.</p>
-<pre><code>installer=$(mktemp)
-curl --proto '=https' --tlsv1.2 -fsSL https://sntco.github.io/sentry-cli/install.sh -o "$installer"
-# Review the downloaded script, then:
-bash "$installer" VERSION</code></pre>
-<p>Or, after reviewing and trusting the installer:</p>
-<pre><code>curl --proto '=https' --tlsv1.2 -fsSL https://sntco.github.io/sentry-cli/install.sh | bash -s -- VERSION</code></pre>
-<p>The CLI is linked at <code>~/.local/bin/sentry</code>. Add that directory to your shell's PATH if needed:</p>
-<pre><code>export PATH="$HOME/.local/bin:$PATH"
-sentry --version
-sentry --help</code></pre>
-<p>Make the PATH change persistent in your shell configuration if desired. The installer does not edit it.</p>
+<h2>Install</h2>
+<pre><code>curl -fsSL https://sntco.github.io/sentry-cli/install.sh | bash</code></pre>
+<p>That installs the current preview, configures zsh/bash command discovery and enables automatic update checks at login and daily. No Swift, Xcode or administrator password is needed. If your current terminal cannot find <code>sentry</code>, open a new terminal once.</p>
+<p>Then run <code>sentry --help</code>. Installation does not install or unlock the Sentry app.</p>
 <h2>Use a saved field</h2>
-<pre><code>sentry run --env 'API_TOKEN=vault://Hosting%20account/password' -- /absolute/path/to/command
+<pre><code>sentry run --env 'API_TOKEN=Hosting account/password' -- /absolute/path/to/command
 sentry access list
 sentry access revoke 'Hosting account'</code></pre>
-<p>Use the exact, unique saved item title, percent-encoded in field references. Open Sentry and unlock normally, then choose Allow once, Allow always or Deny. Allow always covers the entire item for any local program while Sentry is unlocked. Commands can expose credentials they receive; check their behavior and output.</p>
-<h2>Update or uninstall</h2>
-<p>Run the installer with the newer preview version to update. It verifies the download and switches the CLI link without stopping running commands. Previous versions are retained until uninstall. There is no background updater yet.</p>
-<pre><code>bash "$installer" NEW_VERSION
-bash "$installer" --uninstall</code></pre>
-<p>Uninstall removes only verified preview installations. It preserves the app, vault, shell configuration and unrelated commands. An interrupted install can leave a lock; inspect it and confirm no installer is running before removing that lock.</p>
+<p>Use the exact, unique saved item title, quoted in field references. Open and unlock Sentry, then run your command and choose Allow once, Allow always or Deny. Allow always covers the entire item for any local program while Sentry is unlocked. Commands can expose credentials they receive; check their behavior and output.</p>
+<h2>Automatic updates</h2>
+<p>The CLI checks for updates at login and daily while your Mac session is active. Verified updates switch atomically without stopping running commands. Offline or rejected downloads preserve the installed version and are retried on a later scheduled check. Keep the app on the matching current protocol.</p>
+<h2>Uninstall</h2>
+<pre><code>curl -fsSL https://sntco.github.io/sentry-cli/install.sh | bash -s -- --uninstall</code></pre>
+<p>Uninstall removes verified CLI versions, the scheduled updater and its managed PATH entries. It preserves the app, vault and unrelated shell settings. Changed or unknown files are preserved for inspection.</p>
+<details><summary>Advanced installation details</summary>
+<p><a href="https://github.com/sntco/sentry-cli/blob/main/install.sh">Inspect the installer</a> or <a href="https://github.com/sntco/sentry-cli/releases">inspect versioned downloads</a>. Only the current signed preview is installable. The command lives at <code>~/.local/bin/sentry</code>. A child installer cannot modify the terminal that launched it; automatic shell setup takes effect in a new terminal. Custom zsh configuration selected through <code>ZDOTDIR</code> is recorded at installation. An interrupted install may require inspection of its lock or incomplete files before retrying.</p>
+</details>
 <h2>What is verified?</h2>
-<p>Each release includes the executable, SHA-256 checksum and source/toolchain/protocol manifest. The installer checks the checksum, ad-hoc signature and architecture before installing. HTTPS and checksums from the same release protect delivery integrity; they do not independently authenticate Sentry as publisher. Ad-hoc signing is not Developer ID signing.</p>
+<p>Each release includes the executable, SHA-256 checksum and source/toolchain/protocol manifest. The installer checks the checksum, ad-hoc signature and architecture before installing. Updates also require release metadata signed by the publisher key pinned in the installer. The metadata binds the binary and installer hashes, revision and expiry, with downgrade and replay refusals. The first curl command trusts the HTTPS website to deliver that installer and its pinned key. This update signature is separate from Apple Developer ID signing.</p>
 <p>If macOS blocks execution, stop and report the result. The installer does not remove quarantine or disable Gatekeeper. Developer ID signing and notarization are planned before production launch. Keep the app and CLI on the same current protocol; older prototype formats are refused.</p>
 <p><a href="https://github.com/sntco/sentry-cli/issues">Report an installation issue</a> · <a href="https://github.com/sntco/sentry-cli/releases">Downloads and release manifests</a></p>
 </main>
