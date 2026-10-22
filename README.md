@@ -18,6 +18,15 @@ Use a saved token as an environment variable:
 sentry run --env 'API_TOKEN=Hosting account/password' -- /absolute/path/to/command
 ```
 
+Run sudo with your current macOS user's saved password:
+
+```sh
+sentry run --stdin 'Mac admin/password' -- \
+  /usr/bin/sudo -S -k /usr/bin/id -u
+```
+
+Save that user's password in the “Mac admin” item. `-S` reads the password from stdin; `-k` requests fresh authentication. The example prints `0` when authorized; your user must have sudo permission. The password is consumed by sudo, so use this pattern for commands that need no further stdin. The CLI closes stdin after the saved bytes; sudo accepts a nonempty password ending at EOF ([upstream reader](https://github.com/sudo-project/sudo/blob/v1.9.17p2/src/tgetpass.c), [Apple source](https://github.com/apple-oss-distributions/sudo/blob/main/sudo/src/tgetpass.c)). This example was source-checked, not exercised against a real administrator password.
+
 Or send a secure note to a script through standard input:
 
 ```sh
